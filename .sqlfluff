@@ -1,0 +1,5 @@
+[sqlfluff]
+dialect = ansi
+templater = jinja
+exclude_rules = L034
+output_line_length = 88

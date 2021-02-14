@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block scripts %}
+<script>
+    var chats = new Object(); // global and updated via socket.
+    var currentChat = null;
+
+    var socket = io.connect();
+    socket.on('connect', function () {
+        console.log('Socket connected.')
+    })
+
+    // merge new data into chats, render the sidebar
+    socket.on('update_messages', function (newChats) {
+        if (Object.keys(newChats).length == 0) return
+        console.log(`Received ${Object.keys(newChats).length} new message(s)!`)
+        mergeChats(newChats)
+        renderChats()
+        if (currentChat !== null) chats[currentChat.chatId].renderMessages()
+    })
+
+    // seed messages
+    socket.emit('request_messages', { since: getUnixTime([365, 'days']) })
+
+    function update() {
+        // update since last unix stamp
+        let lastUnix = Math.max(
+            ...Object.values(chats).map(chat => chat.lastMessage.dateUnix)
+        )
+        socket.emit('request_messages', { since: lastUnix })
+    }
+
+    function submitMessage() {
+        // submit a message to be sent form the server
+        let message = document.getElementById("userMessage").value
+        let chatId = currentChat.chatId
+        socket.emit('send_message', { chatId, message })
+        document.getElementById("userMessage").value = ''
+
+    }
+
+    // handle errors
+    socket.on('imessage_error', function (message) {
+        console.log(message)
+    })
+
+</script>
+{% endblock %}

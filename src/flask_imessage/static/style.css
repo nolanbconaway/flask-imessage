@@ -1,0 +1,19 @@
+.column {
+    float: left;
+    overflow: scroll;
+    height: 100%;
+}
+
+#left {
+    width: 25%;
+}
+
+#right {
+    width: 75%;
+}
+
+#messageInput {
+    position: absolute;
+    right: 100;
+    bottom: 0;
+}
