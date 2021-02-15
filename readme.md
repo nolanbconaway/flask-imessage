@@ -1,5 +1,8 @@
 # Flask iMessage Server
 
+![Lint + Test (Python)](https://github.com/nolanbconaway/flask-imessage/workflows/Lint%20+%20Test%20(Python)/badge.svg?event=push)
+[![codecov](https://codecov.io/gh/nolanbconaway/flask-imessage/branch/main/graph/badge.svg?token=G053KV5WHB)](https://codecov.io/gh/nolanbconaway/flask-imessage)
+
 > **NOTE**: This is a work in progress. A _lot_ does not work. I am _bad_ at software engineering.
 
 This repo contains a flask webapp that allows users to send + receive iMessages over HTTP. Use it if you like to text on your apple computer but have another machine on which you cannot log into iCloud (i.e., a linux/windows desktop, a corporate computer that locks you out).
@@ -24,7 +27,6 @@ In descending order of how much I care:
 - [ ] docs
 - [x] unit testing for the python infra
 - [ ] unit testing for the web infra
-- [ ] Set up production uwsgi server that is compatible with socketio
 - [ ] better grouping of chat IDs to human-readable identifiers, via contacts lookups.
 - [ ] better styling generally, as of right now this is at 0% styling.
 - [ ] more context on messages (delivered vs not, me vs not, read vs not, etc)
@@ -35,6 +37,7 @@ In descending order of how much I care:
 - [ ] support for group chats (only at the bottom bc i do not think it is possible with applescript)
 - [ ] option for password security
 - [ ] save user chat selection across sessions or something.
+- [ ] Set up production uwsgi server that is compatible with socketio
 
 ## Gotchas to document
 
