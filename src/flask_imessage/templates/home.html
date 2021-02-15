@@ -19,17 +19,6 @@
         if (currentChat !== null) chats[currentChat.chatId].renderMessages()
     })
 
-    // seed messages
-    socket.emit('request_messages', { since: getUnixTime([365, 'days']) })
-
-    function update() {
-        // update since last unix stamp
-        let lastUnix = Math.max(
-            ...Object.values(chats).map(chat => chat.lastMessage.dateUnix)
-        )
-        socket.emit('request_messages', { since: lastUnix })
-    }
-
     function submitMessage() {
         // submit a message to be sent form the server
         let message = document.getElementById("userMessage").value
@@ -43,6 +32,16 @@
     socket.on('imessage_error', function (message) {
         console.log(message)
     })
+
+    // use this later to manually request messages
+    function update() {
+        // update since last unix stamp
+        let lastUnix = Math.max(
+            ...Object.values(chats).map(chat => chat.lastMessage.dateUnix)
+        )
+        socket.emit('request_messages', { since: lastUnix })
+    }
+
 
 </script>
 {% endblock %}

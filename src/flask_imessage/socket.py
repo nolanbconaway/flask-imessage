@@ -9,9 +9,37 @@ from flask_socketio import SocketIO
 
 from . import db, imessage
 
+SECONDS_IN_A_DAY = 86400
+
 bp = Blueprint("socket", __name__)
 socketio = SocketIO()
 scheduler = APScheduler()
+
+
+def update_messages(since: float = None, broadcast: bool = False):
+    """Send messages to the client using the update_messages event.
+
+    User has option to filter for messages after a unix timestamp, and also to
+    broadcast to all clients.
+    """
+    where = f"""date_unix >= {since}""" if since is not None else ""
+    messages = db.get_flat_messages(where)
+    if messages:
+        if broadcast:
+            print(f"Broadcasting {len(messages)} messages.")
+        else:
+            print(f"Emitting {len(messages)} messages to client.")
+        socketio.emit(
+            "update_messages", db.group_flat_messages(messages), broadcast=broadcast
+        )
+
+
+@socketio.on("connect")
+def on_connect():
+    """Send user a bulk update of messages on connect."""
+    # use time.time bc datetime.timestamp is WEIRD.
+    unix_stamp = time.time() - (SECONDS_IN_A_DAY * 365)
+    update_messages(since=unix_stamp)
 
 
 @socketio.event
@@ -23,10 +51,7 @@ def request_messages(data):
 
     Responds via the `update_messages` socket event.
     """
-    messages = db.get_flat_messages(f"""date_unix >= {data["since"]}""")
-    if messages:
-        print(f"Emitting {len(messages)} messages to client.")
-        socketio.emit("update_messages", db.group_flat_messages(messages))
+    update_messages(since=data["since"])
 
 
 @socketio.event
@@ -55,23 +80,11 @@ def send_message(data):
         socketio.emit("imessage_error", e.stderr.decode())
 
 
-@scheduler.task(
-    "interval",
-    id="broadcast_update",
-    seconds=2,
-    misfire_grace_time=10,
-    max_instances=1,
-)
+@scheduler.task("interval", id="broadcast", seconds=2, max_instances=1)
 def broadcast_update():
     """Broadcast message updates to clients on an interval.
 
     Runs every 2 seconds, checking for messages in the last 10 seconds to be safe.
     It will only emit a socket event if there is new data.
     """
-    unix_stamp = time.time() - 10  # use time.time bc datetime.timestamp is WEIRD.
-    messages = db.get_flat_messages(f"""date_unix >= {unix_stamp}""")
-    if messages:
-        print(f"Broadcasting {len(messages)} messages.")
-        socketio.emit(
-            "update_messages", db.group_flat_messages(messages), broadcast=True
-        )
+    update_messages(since=time.time() - 10, broadcast=True)
