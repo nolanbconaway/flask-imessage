@@ -19,7 +19,7 @@ This is the bare minimum setup flow:
 2. **Install the application** by cloning it: `git clone https://github.com/nolanbconaway/flask-imessage.git`.
 3. **`cd`** into the project.
 4. **Install the python requirements** via `pip install -e .`. This'll install flask and some flask extensions.
-5. **Run the Flask HTTP server** via `flask run`. The application should be serving on port 5000.
+5. **Run the HTTP server** via `python -m flask_socketio.serve`. The application should be serving on port 5000.
 6. **Open a web browser on the server** to `http://localhost:5000` and make sure it's running. 
 7. **Send yourself a message from the server** so that Apple prompts you to allow scripts to send messages.
 8. **Open a web browser on the client** to `http://<server_address>:5000` and enjoy!
@@ -67,7 +67,9 @@ In descending order of how much I care:
 - [ ] support for group chats (only at the bottom bc i do not think it is possible with applescript)
 - [ ] option for password security
 - [ ] save user chat selection across sessions or something.
-- [ ] Set up production uwsgi server that is compatible with socketio
+- [x] Set up production wsgi server that is compatible with socketio
+- [ ] mark messages as read when they are read
+
 
 ## Gotchas to document
 

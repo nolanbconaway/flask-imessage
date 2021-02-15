@@ -21,6 +21,8 @@ def create_app() -> Flask:
     socketio.socketio.init_app(app)
     socketio.scheduler.init_app(app)
 
+    print("Serving socketio via:", socketio.socketio.server.eio.async_mode)
+
     # only start the scheduler when running the app. not needed for test.
     if os.getenv("ENV", "DEV") != "TEST":
         print("Running the scheduler")

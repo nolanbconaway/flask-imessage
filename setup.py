@@ -11,12 +11,15 @@ setuptools.setup(
         "flask==1.1.2",
         "Flask-SocketIO==5.0.1",
         "Flask-APScheduler==1.11.0",
+        "gevent==21.1.2",
+        "gevent-websocket==0.10.1",
     ],
     extras_require=dict(
         dev=[
             "black==20.8b1",
             "sqlfluff==0.4.0",
             "pytest==6.2.2",
+            "requests==2.25.1",
             "tox==3.21.4",
             "pytest-cov==2.11.1",
             "codecov==2.1.11",

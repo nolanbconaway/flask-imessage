@@ -12,7 +12,7 @@ from . import db, imessage
 SECONDS_IN_A_DAY = 86400
 
 bp = Blueprint("socket", __name__)
-socketio = SocketIO()
+socketio = SocketIO(async_mode="gevent")
 scheduler = APScheduler()
 
 
