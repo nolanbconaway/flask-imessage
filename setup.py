@@ -7,13 +7,13 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_packages("src"),
     install_requires=[
+        "python-dotenv==0.15.0",
         "flask==1.1.2",
         "Flask-SocketIO==5.0.1",
         "Flask-APScheduler==1.11.0",
     ],
     extras_require=dict(
         dev=[
-            "python-dotenv==0.15.0",
             "black==20.8b1",
             "sqlfluff==0.4.0",
             "pytest==6.2.2",
