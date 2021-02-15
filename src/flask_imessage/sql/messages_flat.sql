@@ -1,10 +1,10 @@
 -- a flat view of all messages
--- 978307200 is 00:00:00 UTC on Jan 1 2001. Apple times dates relative to that stamp.
+-- 978307200 is 00:00:00 UTC on Jan 1 2001, Apple dates relative to that stamp.
 with messages as (
     select
-        message.ROWID as message_id,
+        message."ROWID" as message_id,
         message.date / 1000000000 + 978307200 as date_unix,
-        message.text as message_text,
+        message.text as "message_text",
         message.is_from_me,
         chat.chat_identifier as chat_id,
         case when not message.is_from_me then handle.id end as sender_id

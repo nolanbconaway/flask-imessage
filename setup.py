@@ -12,7 +12,15 @@ setuptools.setup(
         "Flask-APScheduler==1.11.0",
     ],
     extras_require=dict(
-        dev=["python-dotenv-0.15.0", "black==20.8b1", "sqlfluff==0.4.0a3"],
+        dev=[
+            "python-dotenv==0.15.0",
+            "black==20.8b1",
+            "sqlfluff==0.4.0",
+            "pytest==6.2.2",
+            "tox==3.21.4",
+            "pytest-cov==2.11.1",
+            "codecov==2.1.11"
+        ],
     ),
     package_data={"flask_imessage": ["sql/*.sql", "osascript/*.applescript"]},
 )
