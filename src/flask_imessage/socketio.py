@@ -80,7 +80,9 @@ def send_message(data):
         socketio.emit("imessage_error", e.stderr.decode())
 
 
-@scheduler.task("interval", id="broadcast", seconds=2, max_instances=1)
+@scheduler.task(
+    "interval", id="broadcast", seconds=2, max_instances=1, misfire_grace_time=5
+)
 def broadcast_update():
     """Broadcast message updates to clients on an interval.
 

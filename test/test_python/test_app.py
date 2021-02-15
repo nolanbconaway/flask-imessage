@@ -2,7 +2,7 @@
 import time
 
 import pytest
-from flask_imessage import app, db, socket
+from flask_imessage import app, db, socketio
 
 # mocking get flat to return this
 FAKE_FLAT_MESSAGES = [
@@ -26,7 +26,7 @@ def app_and_socket_client(monkeypatch):
     monkeypatch.setenv("ENV", "TEST")
     application = app.create_app()
     with application.test_client() as client:
-        sio = socket.socketio.test_client(application, flask_test_client=client)
+        sio = socketio.socketio.test_client(application, flask_test_client=client)
         yield client, sio
 
 

@@ -22,7 +22,7 @@ This repo contains a flask webapp that allows users to send + receive iMessages 
 In descending order of how much I care:
 
 - [ ] docs
-- [ ] unit testing for the python infra
+- [x] unit testing for the python infra
 - [ ] unit testing for the web infra
 - [ ] Set up production uwsgi server that is compatible with socketio
 - [ ] better grouping of chat IDs to human-readable identifiers, via contacts lookups.
