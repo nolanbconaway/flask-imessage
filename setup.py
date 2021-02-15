@@ -19,7 +19,7 @@ setuptools.setup(
             "pytest==6.2.2",
             "tox==3.21.4",
             "pytest-cov==2.11.1",
-            "codecov==2.1.11"
+            "codecov==2.1.11",
         ],
     ),
     package_data={"flask_imessage": ["sql/*.sql", "osascript/*.applescript"]},
