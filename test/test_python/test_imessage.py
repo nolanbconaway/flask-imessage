@@ -1,4 +1,4 @@
-"""Test the DB module."""
+"""Test the iMessage module."""
 import pytest
 from flask_imessage import imessage
 
