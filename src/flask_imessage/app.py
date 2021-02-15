@@ -31,7 +31,10 @@ def request_messages(data):
 
     Responds via the `update_messages` socket event.
     """
-    socketio.emit("update_messages", db.get_grouped_messages(data["since"]))
+    messages = db.get_flat_messages(f"""date_unix >= {data["since"]}""")
+    if messages:
+        print(f"Emitting {len(messages)} messages to client.")
+        socketio.emit("update_messages", db.group_flat_messages(messages))
 
 
 @socketio.event
@@ -70,8 +73,9 @@ def broadcast_update():
     It will only emit a socket event if there is new data.
     """
     unix_stamp = time.time() - 10  # use time.time bc datetime.timestamp is WEIRD.
-    messages = db.get_grouped_messages(since=unix_stamp)
+    messages = db.get_flat_messages(f"""date_unix >= {unix_stamp}""")
     if messages:
-        n = sum(map(len, messages.values()))
-        print(f"Broadcasting {n} messages.")
-        socketio.emit("update_messages", messages, broadcast=True)
+        print(f"Broadcasting {len(messages)} messages.")
+        socketio.emit(
+            "update_messages", db.group_flat_messages(messages), broadcast=True
+        )

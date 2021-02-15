@@ -34,6 +34,7 @@ In descending order of how much I care:
 - [ ] testing for sending messages to non-phone numbers (emails, etc)
 - [ ] support for group chats (only at the bottom bc i do not think it is possible with applescript)
 - [ ] option for password security
+- [ ] save user chat selection across sessions or something.
 
 ## Gotchas to document
 
