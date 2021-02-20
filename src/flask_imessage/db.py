@@ -34,21 +34,6 @@ def query(sql: str) -> typing.List[typing.Dict[str, typing.Any]]:
     return result
 
 
-def get_account_for_chat(chat_id: str) -> str:
-    """Run account_for_chat.sql to return the latest account id for a chat."""
-    sql = (
-        (config.WHEREAMI / "sql/account_for_chat.sql")
-        .read_text()
-        .format(chat_id=chat_id)
-    )
-    data = query(sql)
-
-    try:
-        return data[0]["account_id"]
-    except IndexError:
-        raise InvalidServiceError(f"Unknown service for chat: {chat_id}")
-
-
 def get_flat_messages(where: str = None) -> typing.List[dict]:
     """Run the messages_flat.sql file to return all messages.
 
