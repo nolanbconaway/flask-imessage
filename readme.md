@@ -19,10 +19,12 @@ This is the bare minimum setup flow:
 2. **Install the application** by cloning it: `git clone https://github.com/nolanbconaway/flask-imessage.git`.
 3. **`cd`** into the project.
 4. **Install the python requirements** via `pip install -e .`. This'll install flask and some flask extensions.
-5. **Run the HTTP server** via `python -m flask_socketio.serve`. The application should be serving on port 5000.
-6. **Open a web browser on the server** to `http://localhost:5000` and make sure it's running. 
-7. **Send yourself a message from the server** so that Apple prompts you to allow scripts to send messages.
-8. **Open a web browser on the client** to `http://<server_address>:5000` and enjoy!
+5. **Seed the cached contacts data** via `osascript src/flask_imessage/osascript/get_contacts.applescript > src/flask_imessage/.cache/contacts.tsv`. This takes a minute and will also prompt you for permissions. 
+6. **Run the HTTP server** via `python -m flask_socketio.serve`. The application should be serving on port 5000.
+7. **Open a web browser on the server** to `http://localhost:5000` and make sure it's running. 
+8. **Send yourself a message from the server** so that Apple prompts you to allow scripts to send messages.
+9.  **Open a web browser on the client** to `http://<server_address>:5000` and enjoy!
+
 
 ### Hangups, sharp parts, and everything else that can go wrong
 
@@ -45,6 +47,10 @@ sqlite3 ~/Library/Messages/chat.db
 
 The application by default will serve the last 365 days of messages _that are known to your computer's iMessage application_. If you want older messages, you'll need to edit the source code (it's not hard!). If you can't see newer messages, then probably you _also_ cannot see them in your iMessage application. If you can't see messages in the webapp that _do_ exist in iMessage, **file an issue on github**!
 
+#### My address book information isn't complete!
+
+I know. Right now the best I've got is an applescript that maps names to phone numbers. It takes too long to run and I have no way of verifying that it is complete. In real life, contact entity resolution is a very complicated thing. Sorry.
+
 ## What works
 
 - Sending messages to a single phone number, over iMessage or SMS.
@@ -57,7 +63,7 @@ In descending order of how much I care:
 - [x] docs
 - [x] unit testing for the python infra
 - [ ] unit testing for the web infra (is selenium really the only option?)
-- [ ] better grouping of chat IDs to human-readable identifiers, via contacts lookups.
+- [x] better grouping of chat IDs to human-readable identifiers, via contacts lookups.
 - [ ] better styling generally, as of right now this is at 0% styling.
 - [ ] more context on messages (delivered vs not, me vs not, read vs not, etc)
 - [ ] display error messages to users (mostly after sending messages but should be general)
@@ -69,6 +75,7 @@ In descending order of how much I care:
 - [ ] save user chat selection across sessions or something.
 - [x] Set up production wsgi server that is compatible with socketio
 - [ ] mark messages as read when they are read
+- [ ] read contacts faster via internal SQLite db.
 
 
 ## Gotchas to document

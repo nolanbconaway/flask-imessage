@@ -16,21 +16,28 @@
         console.log(`Received ${Object.keys(newChats).length} new message(s)!`)
         mergeChats(newChats)
         renderChats()
-        if (currentChat !== null) chats[currentChat.chatId].renderMessages()
+
+        if (currentChat !== null) currentChat.renderMessages()
     })
 
     function submitMessage() {
         // submit a message to be sent form the server
         let message = document.getElementById("userMessage").value
-        let chatId = currentChat.chatId
-        socket.emit('send_message', { chatId, message })
+        let phone = currentChat.replyTo
+        let account = currentChat.lastMessage.accountGuid
+        socket.emit('send_message', { message, phone, account })
         document.getElementById("userMessage").value = ''
 
     }
 
     // handle errors
-    socket.on('imessage_error', function (message) {
+    socket.on('application_error', function (message) {
         console.log(message)
+    })
+
+    // handle successes
+    socket.on('imessage_success', function (dt) {
+        console.log(`Message sent at ${dt}`)
     })
 
     // use this later to manually request messages

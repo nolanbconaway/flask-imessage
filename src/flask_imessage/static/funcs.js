@@ -1,21 +1,18 @@
-function getUnixTime(...subtractions) {
-    let utcnow = moment.utc()
-    subtractions.forEach(s => utcnow.subtract(...s))
-    return utcnow.valueOf() / 1000;
-}
-
 function makeLi(text) {
     let internal_li = document.createElement('li')
     internal_li.innerHTML = text
     return internal_li
 }
 
+
 class Message {
     constructor(data) {
         this.messageId = data.message_id
         this.senderId = data.sender_id
+        this.senderName = data.sender_name || data.sender_id
         this.dateUTC = new Date(data.date_unix * 1000)
         this.isFromMe = data.is_from_me
+        this.accountGuid = data.account_guid
         this.text = data.message_text
     }
 
@@ -26,7 +23,7 @@ class Message {
         let ul = document.createElement('ul')
         ul.appendChild(makeLi(this.text))
         ul.appendChild(makeLi('At: ' + this.dateLocalString))
-        if (!this.isFromMe) ul.appendChild(makeLi('From: ' + this.senderId))
+        if (!this.isFromMe) ul.appendChild(makeLi('From: ' + this.senderName))
         return ul
     }
 }
@@ -34,13 +31,39 @@ class Message {
 class Chat {
     constructor(chat_id, messages) {
         this.chatId = chat_id
+        this.participantPhones = this.chatId.split(',')
         this.messages = messages.map(m => new Message(m))
         this.sortMessages()
     }
 
-    get messageIDs() { return new Set(this.messages.map((({ messageId }) => messageId))) }
-    get senderIDs() { return new Set(this.messages.map((({ senderId }) => senderId))) }
-    get isGroup() { return this.senderIDs.size > 1 }
+    getParticipantInfo(key) {
+        // get a mapping of numbers to key values for all participants. values will be
+        // null if the participant has not sent a message or does not have that value 
+        // assigned.
+        let result = {}
+        let messages = this.sortMessages()
+        function f(p) {
+            let lastMessage = messages.find(m =>
+                !m.isFromMe
+                && m.senderId === p
+                && m[key] !== undefined && m[key] !== null
+            )
+            result[p] = lastMessage === undefined ? null : lastMessage[key]
+        }
+        this.participantPhones.forEach(f)
+        return result
+    }
+
+    get messageIds() { return new Set(this.messages.map((({ messageId }) => messageId))) }
+    get isGroup() { return this.participant_names.size > 1 }
+    get replyTo() { return this.lastNotFromMeMessage.senderId }
+
+    get lastNotFromMeMessage() {
+        this.sortMessages()
+        let notMe = this.messages.filter(x => !x.isFromMe).slice(-1)
+        return notMe.length > 0 ? notMe[0] : null
+    }
+
     get lastMessage() {
         this.sortMessages()
         return this.messages.slice(-1)[0]
@@ -54,9 +77,11 @@ class Chat {
 
     sidebarElement() {
         // make the internal HTML of a chat sidebar element
+        let participantNames = Object.values(this.getParticipantInfo('senderName'))
+        console.log(participantNames)
         let ul = document.createElement('ul')
         document.createElement('ul')
-        ul.appendChild(makeLi(`Chat: ${this.chatId}`))
+        ul.appendChild(makeLi(`Chat: ${participantNames.join(', ')}`))
         ul.appendChild(makeLi(`Message: ${this.lastMessage.text}`))
         ul.appendChild(makeLi(`As of: ${this.lastMessage.dateLocalString}`))
         return ul
@@ -92,7 +117,7 @@ function mergeChats(data) {
         let chatId = chat.chatId
         if (chatId in chats) {
             chats[chatId].messages.push(...chat.messages.filter(
-                m => !chats[chatId].messageIDs.has(m.messageId)
+                m => !chats[chatId].messageIds.has(m.messageId)
             ))
         } else {
             chats[chatId] = chat

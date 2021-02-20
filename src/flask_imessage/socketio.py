@@ -4,16 +4,14 @@ import time
 from subprocess import CalledProcessError
 
 from flask import Blueprint
-from flask_apscheduler import APScheduler
 from flask_socketio import SocketIO
 
-from . import db, imessage
+from . import apple, db
 
 SECONDS_IN_A_DAY = 86400
 
 bp = Blueprint("socket", __name__)
-socketio = SocketIO(async_mode="gevent")
-scheduler = APScheduler()
+socketio = SocketIO()  # async_mode="gevent"
 
 
 def update_messages(since: float = None, broadcast: bool = False):
@@ -24,14 +22,20 @@ def update_messages(since: float = None, broadcast: bool = False):
     """
     where = f"""date_unix >= {since}""" if since is not None else ""
     messages = db.get_flat_messages(where)
-    if messages:
-        if broadcast:
-            print(f"Broadcasting {len(messages)} messages.")
-        else:
-            print(f"Emitting {len(messages)} messages to client.")
-        socketio.emit(
-            "update_messages", db.group_flat_messages(messages), broadcast=broadcast
-        )
+
+    if not messages:
+        return
+
+    # log
+    if broadcast:
+        print(time.time(), f"Broadcasting {len(messages)} messages.")
+    else:
+        print(time.time(), f"Emitting {len(messages)} messages to client.")
+
+    # emit
+    socketio.emit(
+        "update_messages", db.group_flat_messages(messages), broadcast=broadcast
+    )
 
 
 @socketio.on("connect")
@@ -60,33 +64,22 @@ def send_message(data):
 
     Expected data to contain keys:
 
-        - chatId: a phone-number like chat ID. group messages not supported rn.
+        - phone: a phone-number. group messages not supported rn.
+        - account: an account guid
         - message: the text to send. attachments not supported rn.
 
-    Responds via the `imessage_success` socket event if success, or `imessage_error`
+    Responds via the `imessage_success` socket event if success, or `application_error`
     if failed.
     """
+    print(data)
     try:
-        account_id = db.get_account_for_chat(data["chatId"])
-        imessage.send_message(data["chatId"], data["message"], account_id)
+        apple.send_message(data["phone"], data["message"], data["account"])
         time.sleep(5)
         socketio.emit("imessage_success", datetime.datetime.utcnow().timestamp())
 
     # if an expected error, send the user some info and exit
-    except (imessage.InvalidPhoneError, db.InvalidServiceError) as e:
-        socketio.emit("imessage_error", str(e))
+    except (apple.InvalidPhoneError, db.InvalidServiceError) as e:
+        socketio.emit("application_error", str(e))
 
     except CalledProcessError as e:
-        socketio.emit("imessage_error", e.stderr.decode())
-
-
-@scheduler.task(
-    "interval", id="broadcast", seconds=2, max_instances=1, misfire_grace_time=5
-)
-def broadcast_update():
-    """Broadcast message updates to clients on an interval.
-
-    Runs every 2 seconds, checking for messages in the last 10 seconds to be safe.
-    It will only emit a socket event if there is new data.
-    """
-    update_messages(since=time.time() - 10, broadcast=True)
+        socketio.emit("application_error", e.stderr.decode())

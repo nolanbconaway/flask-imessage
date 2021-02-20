@@ -1,22 +1,24 @@
 """Test the socketio bindings in the app module."""
-import time
-
 import pytest
-from flask_imessage import app, db, socketio
+from flask_imessage import app, config, db, socketio
+
+
+@pytest.fixture
+def contacts_tsv(monkeypatch, tmp_path):
+    """Make a fake TSV file for testing."""
+    tmpfile = tmp_path / "contacts.tsv"
+    monkeypatch.setattr(config, "CACHED_CONTACTS_PATH", tmpfile)
+    tmpfile.write_text("")
+    yield tmpfile
+
 
 # mocking get flat to return this
 FAKE_FLAT_MESSAGES = [
-    dict(chat_id="a", sender_id="foo", is_from_me=0),
-    dict(chat_id="a", sender_id="bar", is_from_me=0),
-    dict(chat_id="b", sender_id="foo", is_from_me=0),
-    dict(chat_id="b", sender_id="bar", is_from_me=1),
+    dict(chat_id="a,b", sender_id="a"),
+    dict(chat_id="b,a", sender_id="b"),
+    dict(chat_id="b", sender_id="b"),
+    dict(chat_id="b", sender_id="b"),
 ]
-
-# add programatic columns to flat messages
-for i, message in enumerate(FAKE_FLAT_MESSAGES):
-    message["message_id"] = str(i)
-    message["date_unix"] = time.time() - i
-    message["message_text"] = f"message number {i}"
 
 
 @pytest.fixture
