@@ -24,7 +24,7 @@
         // submit a message to be sent form the server
         let message = document.getElementById("userMessage").value
         let phone = currentChat.replyTo
-        let account = currentChat.lastMessage.accountGuid
+        let account = currentChat.lastMessage().accountGuid
         socket.emit('send_message', { message, phone, account })
         document.getElementById("userMessage").value = ''
 
@@ -44,7 +44,7 @@
     function update() {
         // update since last unix stamp
         let lastUnix = Math.max(
-            ...Object.values(chats).map(chat => chat.lastMessage.dateUnix)
+            ...Object.values(chats).map(chat => chat.lastMessage().dateUnix)
         )
         socket.emit('request_messages', { since: lastUnix })
     }

@@ -14,10 +14,10 @@ def contacts_tsv(monkeypatch, tmp_path):
 
 # mocking get flat to return this
 FAKE_FLAT_MESSAGES = [
-    dict(chat_id="a,b", sender_id="a"),
-    dict(chat_id="b,a", sender_id="b"),
-    dict(chat_id="b", sender_id="b"),
-    dict(chat_id="b", sender_id="b"),
+    dict(is_from_me=0, chat_id="a,b", sender_id="a"),
+    dict(is_from_me=0, chat_id="b,a", sender_id="b"),
+    dict(is_from_me=0, chat_id="b", sender_id="b"),
+    dict(is_from_me=0, chat_id="b", sender_id="b"),
 ]
 
 

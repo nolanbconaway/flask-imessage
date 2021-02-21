@@ -20,10 +20,10 @@ def contacts_tsv(monkeypatch, tmp_path):
 
 def test_get_flat_messages(monkeypatch, contacts_tsv):
     flat_messages = [
-        dict(chat_id="a", sender_id="a"),
-        dict(chat_id="b,a", sender_id="a"),
-        dict(chat_id="b,a", sender_id="b"),
-        dict(chat_id="b", sender_id="b"),
+        dict(is_from_me=0, chat_id="a", sender_id="a"),
+        dict(is_from_me=0, chat_id="b,a", sender_id="a"),
+        dict(is_from_me=0, chat_id="b,a", sender_id="b"),
+        dict(is_from_me=0, chat_id="b", sender_id="b"),
     ]
     monkeypatch.setattr(db, "query", lambda x: flat_messages)
     result = db.get_flat_messages()
@@ -35,10 +35,10 @@ def test_get_flat_messages(monkeypatch, contacts_tsv):
 def test_group_flat_messages():
     """Test the core chat grabber."""
     flat_messages = [
-        dict(chat_id="a", date_unix=1),
-        dict(chat_id="b", date_unix=2),
-        dict(chat_id="a", date_unix=3),
-        dict(chat_id="b", date_unix=4),
+        dict(is_from_me=0, chat_id="a", date_unix=1),
+        dict(is_from_me=0, chat_id="b", date_unix=2),
+        dict(is_from_me=0, chat_id="a", date_unix=3),
+        dict(is_from_me=0, chat_id="b", date_unix=4),
     ]
 
     grouped = db.group_flat_messages(flat_messages)

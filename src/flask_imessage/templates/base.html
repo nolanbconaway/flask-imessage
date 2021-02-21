@@ -28,20 +28,18 @@
 </head>
 
 <body>
-    <div id=content>
-        <div class="column" id="left">
-            <div id=chatList>
+    <div id=content class="container-fluid">
+        <div class="row row-height">
+
+            <div class="col-3 align-self-start left">
+                <div id=chatList>
+                </div>
             </div>
-        </div>
-        <div class="column" id="right">
-            <div id=messageList>
+            <div class="col-9 align-self-end right" id=right>
+                <div id=messageList></div>
+                <div id=messageInput></div>
             </div>
-            <div id=messageInput>
-                <form action="javascript:submitMessage()">
-                    <textarea id="userMessage"></textarea>
-                    <button id="submitMessage" type="submit">SEND</button>
-                </form>
-            </div>
+
         </div>
     </div>
 </body>

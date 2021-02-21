@@ -51,6 +51,8 @@ The application by default will serve the last 365 days of messages _that are kn
 
 I know. Right now the best I've got is an applescript that maps names to phone numbers. It takes too long to run and I have no way of verifying that it is complete. In real life, contact entity resolution is a very complicated thing. Sorry.
 
+Also, the way I have set up contact resolution is NOT GOOD, so there are fixable reasons this might not be a good experience. PR's welcome y'all.
+
 ## What works
 
 - Sending messages to a single phone number, over iMessage or SMS.
@@ -65,17 +67,24 @@ In descending order of how much I care:
 - [ ] unit testing for the web infra (is selenium really the only option?)
 - [x] better grouping of chat IDs to human-readable identifiers, via contacts lookups.
 - [ ] better styling generally, as of right now this is at 0% styling.
-- [ ] more context on messages (delivered vs not, me vs not, read vs not, etc)
+- [ ] more context on messages 
+  - [x] self vs other sent
+  - [ ] delivered vs not
+  - [ ] read vs not
+  - [ ] imessage vs sms
+  - [ ] who sent it (in case of group chat)
 - [ ] display error messages to users (mostly after sending messages but should be general)
 - [ ] Photo, video, audio attachments
 - [ ] new message notifications.
 - [ ] testing for sending messages to non-phone numbers (emails, etc)
-- [ ] support for group chats (only at the bottom bc i do not think it is possible with applescript)
+- [ ] support for group chats
 - [ ] option for password security
 - [ ] save user chat selection across sessions or something.
 - [x] Set up production wsgi server that is compatible with socketio
 - [ ] mark messages as read when they are read
 - [ ] read contacts faster via internal SQLite db.
+- [ ] set up chat metadata layer so that contact info can be resolved better
+- [ ] clickable links.
 
 
 ## Gotchas to document

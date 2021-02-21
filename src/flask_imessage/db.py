@@ -70,6 +70,9 @@ def get_flat_messages(where: str = None) -> typing.List[dict]:
             message["sender_id"] = apple.sanitize_phone(message["sender_id"])
             message["sender_name"] = phone_number_map.get(message["sender_id"])
 
+        # cast sql int to boolean
+        message["is_from_me"] = message["is_from_me"] == 1
+
     return messages
 
 

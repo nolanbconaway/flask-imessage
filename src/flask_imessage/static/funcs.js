@@ -17,14 +17,35 @@ class Message {
     }
 
     get dateUnix() { return this.dateUTC.getTime() / 1000 }
-    get dateLocalString() { return moment(this.dateUTC).local().format() }
+    minutesAgo() { return (new Date() - this.dateUTC) / 1000 / 60 }
+    relativeTime() {
+        let mins = this.minutesAgo()
+        if (mins < 60) return `${Math.round(mins)}m`
+        if (mins <= 1440) return `${Math.round(mins / 60)}h`
+        return `${Math.round(mins / (60 * 24))}d`
+    }
 
     render() {
-        let ul = document.createElement('ul')
-        ul.appendChild(makeLi(this.text))
-        ul.appendChild(makeLi('At: ' + this.dateLocalString))
-        if (!this.isFromMe) ul.appendChild(makeLi('From: ' + this.senderName))
-        return ul
+        let container = document.createElement('div')
+        container.classList.add('d-table-row')
+
+        let div = document.createElement('div')
+        div.classList.add('d-table-cell')
+        div.classList.add('messageContainer')
+
+        let messageElement = document.createElement('span')
+        messageElement.classList.add('messageText')
+        messageElement.title = this.relativeTime() + ' ago'
+
+        messageElement.classList.add(this.isFromMe ? "messageFromSelf" : "messageFromOther")
+        messageElement.classList.add(`float-${this.isFromMe ? "right" : "left"}`)
+        messageElement.classList.add(`text-${this.isFromMe ? "right" : "left"}`)
+
+        messageElement.innerHTML = this.text
+
+        div.appendChild(messageElement)
+        container.appendChild(div)
+        return container
     }
 }
 
@@ -55,16 +76,16 @@ class Chat {
     }
 
     get messageIds() { return new Set(this.messages.map((({ messageId }) => messageId))) }
-    get isGroup() { return this.participant_names.size > 1 }
-    get replyTo() { return this.lastNotFromMeMessage.senderId }
+    get isGroup() { return this.participantPhones.length > 1 }
+    get replyTo() { return this.lastNotFromMeMessage().senderId }
 
-    get lastNotFromMeMessage() {
+    lastNotFromMeMessage() {
         this.sortMessages()
         let notMe = this.messages.filter(x => !x.isFromMe).slice(-1)
         return notMe.length > 0 ? notMe[0] : null
     }
 
-    get lastMessage() {
+    lastMessage() {
         this.sortMessages()
         return this.messages.slice(-1)[0]
     }
@@ -77,33 +98,42 @@ class Chat {
 
     sidebarElement() {
         // make the internal HTML of a chat sidebar element
-        let participantNames = Object.values(this.getParticipantInfo('senderName'))
-        console.log(participantNames)
-        let ul = document.createElement('ul')
-        document.createElement('ul')
-        ul.appendChild(makeLi(`Chat: ${participantNames.join(', ')}`))
-        ul.appendChild(makeLi(`Message: ${this.lastMessage.text}`))
-        ul.appendChild(makeLi(`As of: ${this.lastMessage.dateLocalString}`))
-        return ul
+        let senderNames = this.getParticipantInfo('senderName')
+        let participantNames = this.participantPhones.map(x => senderNames[x] || x)
+        let div = document.createElement('div')
+        div.title = this.lastMessage().relativeTime() + ' ago'
+        div.innerHTML = `
+        <span class="float-left font-weight-bold">${participantNames.join(', ')}</span>
+        <br>
+        <span class="sidebarChatMessage">${this.lastMessage().text}</span>
+        `
+        return div
     }
 
     renderMessages() {
         // Render this chat's messages in the main area
+        let right = document.getElementById('right')
         let messageList = document.getElementById('messageList')
-        messageList.innerHTML = ''
+        let messageInput = document.getElementById('messageInput')
 
-        let table = document.createElement('table')
+        messageList.innerHTML = ''
+        messageInput.innerHTML = ''
+
         this.sortMessages().forEach(function (message) {
-            let tr = document.createElement('tr')
-            tr.appendChild(message.render())
-            table.appendChild(tr)
+            messageList.appendChild(message.render())
         })
-        messageList.appendChild(table)
+
+        if (!this.isGroup) {
+            messageInput.innerHTML = `
+            <form action="javascript:submitMessage()">
+                <textarea id="userMessage"></textarea>
+                <button id="submitMessage" type="submit">SEND</button>
+            </form>
+            `
+        }
 
         // auto scroll to bottom
-        let right = document.getElementById('right')
         right.scrollTop = right.scrollHeight - right.clientHeight
-
         currentChat = this // make sure to update global state
     }
 }
@@ -132,15 +162,15 @@ function renderChats() {
     chatList.innerHTML = ''
 
     let sortedChats = Object.values(chats).sort(
-        (a, b) => b.lastMessage.dateUnix - a.lastMessage.dateUnix
+        (a, b) => b.lastMessage().dateUnix - a.lastMessage().dateUnix
     )
 
-    let table = document.createElement('table')
+    let div = document.createElement('div')
     sortedChats.forEach(function (chat) {
-        let tr = document.createElement('tr')
-        tr.appendChild(chat.sidebarElement())
-        tr.onclick = function () { chat.renderMessages() }
-        table.appendChild(tr)
+        let row = document.createElement('div')
+        row.appendChild(chat.sidebarElement())
+        row.onclick = function () { chat.renderMessages() }
+        div.appendChild(row)
     })
-    chatList.appendChild(table)
+    chatList.appendChild(div)
 }
