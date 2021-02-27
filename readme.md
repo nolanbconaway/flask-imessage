@@ -20,10 +20,11 @@ This is the bare minimum setup flow:
 3. **`cd`** into the project.
 4. **Install the python requirements** via `pip install -e .`. This'll install flask and some flask extensions.
 5. **Seed the cached contacts data** via `osascript src/flask_imessage/osascript/get_contacts.applescript > src/flask_imessage/.cache/contacts.tsv`. This takes a minute and will also prompt you for permissions. 
-6. **Run the HTTP server** via `python -m flask_socketio.serve`. The application should be serving on port 5000.
-7. **Open a web browser on the server** to `http://localhost:5000` and make sure it's running. 
-8. **Send yourself a message from the server** so that Apple prompts you to allow scripts to send messages.
-9.  **Open a web browser on the client** to `http://<server_address>:5000` and enjoy!
+6. **Make sure applescript can run UI commands** via `osascript src/flask_imessage/osascript/imessage_sync.applescript`. This'll open up the preferences on your Messages.app and click the "Sync Now" button.
+7. **Run the HTTP server** via `python -m flask_socketio.serve`. The application should be serving on port 5000.
+8. **Open a web browser on the server** to `http://localhost:5000` and make sure it's running. 
+9. **Send yourself a message from the server** so that Apple prompts you to allow scripts to send messages.
+10. **Open a web browser on the client** to `http://<server_address>:5000` and enjoy!
 
 
 ### Hangups, sharp parts, and everything else that can go wrong
