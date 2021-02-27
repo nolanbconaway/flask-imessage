@@ -1,3 +1,10 @@
+function userInputPoll() {
+    // disable submit if a group message or no text
+    document.getElementById('submitMessage').disabled = (
+        currentChat.isGroup || document.getElementById("userMessage").value === ""
+    )
+}
+
 function makeLi(text) {
     let internal_li = document.createElement('li')
     internal_li.innerHTML = text
@@ -112,17 +119,16 @@ class Chat {
 
     renderMessages() {
         // Render this chat's messages in the main area
-        let right = document.getElementById('right')
         let messageList = document.getElementById('messageList')
-
         messageList.innerHTML = ''
 
         this.sortMessages().forEach(function (message) {
             messageList.appendChild(message.render())
+
         })
 
-        if (currentChat !== null || currentChat.chatId != this.chatId) {
-            document.getElementById('submitMessage').disabled = this.isGroup
+        // disable message if a group chat (not supported rn)
+        if (currentChat === null || currentChat.chatId != this.chatId) {
             document.getElementById("userMessage").disabled = this.isGroup
             document.getElementById("userMessage").defaultValue = (
                 this.isGroup ? "This application does not support group chats!" : ""
@@ -130,8 +136,12 @@ class Chat {
         }
 
         // auto scroll to bottom
+        let right = document.getElementById('right')
         right.scrollTop = right.scrollHeight - right.clientHeight
         currentChat = this // make sure to update global state
+
+        // rerender the chats to highlight the current chat
+        renderChats()
     }
 }
 
@@ -155,6 +165,8 @@ function mergeChats(data) {
 }
 
 function renderChats() {
+    // Render the left-sidebar chat's list
+    // Uses global variable `chats`
     let chatList = document.getElementById('chatList')
     chatList.innerHTML = ''
 
@@ -167,6 +179,9 @@ function renderChats() {
         let row = document.createElement('div')
         row.appendChild(chat.sidebarElement())
         row.onclick = function () { chat.renderMessages() }
+        if (currentChat !== null && currentChat.chatId === chat.chatId) {
+            row.id = 'currentSideBarChat'
+        }
         div.appendChild(row)
     })
     chatList.appendChild(div)

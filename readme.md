@@ -3,7 +3,7 @@
 ![Lint + Test (Python)](https://github.com/nolanbconaway/flask-imessage/workflows/Lint%20+%20Test%20(Python)/badge.svg?event=push)
 [![codecov](https://codecov.io/gh/nolanbconaway/flask-imessage/branch/main/graph/badge.svg?token=G053KV5WHB)](https://codecov.io/gh/nolanbconaway/flask-imessage)
 
-> **NOTE**: This is a work in progress. A _lot_ does not work. I am _bad_ at software engineering.
+> **NOTE**: This is a work in progress. A _lot_ does not work. I am _bad_ at software engineering. See the issues page for a subset of things that I know about and that bother me. If you're here, you should contribute!
 
 This repo contains a flask webapp that allows users to send + receive iMessages over HTTP. Use it if you like to text on your apple computer but have another machine on which you cannot log into iCloud (i.e., a linux/windows desktop, a corporate computer that locks you out).
 
@@ -52,8 +52,3 @@ The application by default will serve the last 365 days of messages _that are kn
 I know. Right now the best I've got is an applescript that maps names to phone numbers. It takes too long to run and I have no way of verifying that it is complete. In real life, contact entity resolution is a very complicated thing. Sorry.
 
 Also, the way I have set up contact resolution is NOT GOOD, so there are fixable reasons this might not be a good experience. PR's welcome y'all.
-
-## What works
-
-- Sending messages to a single phone number, over iMessage or SMS.
-- Receiving messages from all chats.

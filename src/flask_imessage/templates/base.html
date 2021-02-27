@@ -39,8 +39,8 @@
                 <div id=messageList></div>
                 <div id=messageInput>
                     <form action="javascript:submitMessage()">
-                        <textarea id="userMessage"></textarea>
-                        <button id="submitMessage" type="submit">SEND</button>
+                        <textarea id="userMessage" oninput="userInputPoll()" disabled></textarea>
+                        <button id="submitMessage" type="submit" disabled> > </button>
                     </form>
                 </div>
             </div>
