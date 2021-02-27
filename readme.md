@@ -13,36 +13,51 @@ This repo contains a flask webapp that allows users to send + receive iMessages 
 
 ## User guide
 
-This is the bare minimum setup flow:
+
+Before you begin, know that `flask_imessage` requires _a lot_ of permissions. This application is doing a lot of stuff that Apple (rightfully) wants to prevent applications from doing, such as:
+
+- [Accessing](src/flask_imessage/sql/messages_flat.sql) an internal SQLite database (`~/Library/Messages/chat.db`) that contains records of historical messages.
+- Sending iMessages via [applescript](src/flask_imessage/osascript/send_message.applescript).
+- Listing contacts data via an [applescript](src/flask_imessage/osascript/get_contacts.applescript).
+- Clicking preferences menu items via [applescript](src/flask_imessage/osascript/imessage_sync.applescript).
+
+It's a lot of stuff that Apple is right to guard against. You'll need to set up permissions for each of these cases in your Security + privacy settings. The following shell commands can help verify that everything is correctly permissioned:
+
+Accessing the SQLite data (see [this SO post](https://apple.stackexchange.com/questions/208478) if granting full disk access doesn't do the trick):
+
+```sh
+$ sqlite3 ~/Library/Messages/chat.db
+```
+
+Checking contacts access via applescript (let it run a minute or two, a TSV should print to the console):
+
+```sh
+$ osascript src/flask_imessage/osascript/get_contacts.applescript
+```
+
+Checking applescripts can execute system events (button clicks):
+
+```sh
+$ osascript src/flask_imessage/osascript/imessage_sync.applescript
+```
+
+
+### Setup
 
 1. **Set up a Python 3.8 venv**, however you like.
 2. **Install the application** by cloning it: `git clone https://github.com/nolanbconaway/flask-imessage.git`.
 3. **`cd`** into the project.
 4. **Install the python requirements** via `pip install -e .`. This'll install flask and some flask extensions.
-5. **Seed the cached contacts data** via `osascript src/flask_imessage/osascript/get_contacts.applescript > src/flask_imessage/.cache/contacts.tsv`. This takes a minute and will also prompt you for permissions. 
-6. **Make sure applescript can run UI commands** via `osascript src/flask_imessage/osascript/imessage_sync.applescript`. This'll open up the preferences on your Messages.app and click the "Sync Now" button.
-7. **Run the HTTP server** via `python -m flask_socketio.serve`. The application should be serving on port 5000.
-8. **Open a web browser on the server** to `http://localhost:5000` and make sure it's running. 
-9. **Send yourself a message from the server** so that Apple prompts you to allow scripts to send messages.
-10. **Open a web browser on the client** to `http://<server_address>:5000` and enjoy!
+5. **Seed the cached contacts data** via `osascript src/flask_imessage/osascript/get_contacts.applescript > src/flask_imessage/.cache/contacts.tsv`.
+6. **Run the HTTP server** via `python -m flask_socketio.serve`. The application should be serving on port 5000.
+7. **Open a web browser on the server** to `http://localhost:5000` and make sure it's running. 
+8. **Send yourself a message from the server** so that Apple prompts you to allow scripts to send messages.
+9.  **Open a web browser on the client** to `http://<server_address>:5000` and enjoy!
 
 
 ### Hangups, sharp parts, and everything else that can go wrong
 
 I'll add items here as they are surfaced. Right now this section only contains what I remember.
-
-#### Permission denied to `~/Library/Messages/chat.db`
-
-This is very common. `~/Library/Messages/chat.db` is a database that apple maintains to store all historical messages. For good reason, they keep this file guarded! 
-
-You may only need to go to System Preferences > Security + Privacy, and give Full Disk Access permissions to Python and your Terminal application. But that didn't end up working for me. I had to 
-disable System Integrity protection via `csrutil disable`. See [this SO post](https://apple.stackexchange.com/questions/208478).
-
-The easiest way to check you can access the file is via:
-
-```sh
-sqlite3 ~/Library/Messages/chat.db
-```
 
 #### I don't see all my messages!
 
@@ -53,3 +68,7 @@ The application by default will serve the last 365 days of messages _that are kn
 I know. Right now the best I've got is an applescript that maps names to phone numbers. It takes too long to run and I have no way of verifying that it is complete. In real life, contact entity resolution is a very complicated thing. Sorry.
 
 Also, the way I have set up contact resolution is NOT GOOD, so there are fixable reasons this might not be a good experience. PR's welcome y'all.
+
+#### My messages are not syncing when the server is headless
+
+I know about this, and am testing out different solutions. LMK if you know of a good approach!
