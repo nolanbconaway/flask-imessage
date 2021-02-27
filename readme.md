@@ -3,7 +3,7 @@
 ![Lint + Test (Python)](https://github.com/nolanbconaway/flask-imessage/workflows/Lint%20+%20Test%20(Python)/badge.svg?event=push)
 [![codecov](https://codecov.io/gh/nolanbconaway/flask-imessage/branch/main/graph/badge.svg?token=G053KV5WHB)](https://codecov.io/gh/nolanbconaway/flask-imessage)
 
-> **NOTE**: This is a work in progress. A _lot_ does not work. I am _bad_ at software engineering.
+> **NOTE**: This is a work in progress. A _lot_ does not work. I am _bad_ at software engineering. See the issues page for a subset of things that I know about and that bother me. If you're here, you should contribute!
 
 This repo contains a flask webapp that allows users to send + receive iMessages over HTTP. Use it if you like to text on your apple computer but have another machine on which you cannot log into iCloud (i.e., a linux/windows desktop, a corporate computer that locks you out).
 
@@ -19,10 +19,13 @@ This is the bare minimum setup flow:
 2. **Install the application** by cloning it: `git clone https://github.com/nolanbconaway/flask-imessage.git`.
 3. **`cd`** into the project.
 4. **Install the python requirements** via `pip install -e .`. This'll install flask and some flask extensions.
-5. **Run the HTTP server** via `python -m flask_socketio.serve`. The application should be serving on port 5000.
-6. **Open a web browser on the server** to `http://localhost:5000` and make sure it's running. 
-7. **Send yourself a message from the server** so that Apple prompts you to allow scripts to send messages.
-8. **Open a web browser on the client** to `http://<server_address>:5000` and enjoy!
+5. **Seed the cached contacts data** via `osascript src/flask_imessage/osascript/get_contacts.applescript > src/flask_imessage/.cache/contacts.tsv`. This takes a minute and will also prompt you for permissions. 
+6. **Make sure applescript can run UI commands** via `osascript src/flask_imessage/osascript/imessage_sync.applescript`. This'll open up the preferences on your Messages.app and click the "Sync Now" button.
+7. **Run the HTTP server** via `python -m flask_socketio.serve`. The application should be serving on port 5000.
+8. **Open a web browser on the server** to `http://localhost:5000` and make sure it's running. 
+9. **Send yourself a message from the server** so that Apple prompts you to allow scripts to send messages.
+10. **Open a web browser on the client** to `http://<server_address>:5000` and enjoy!
+
 
 ### Hangups, sharp parts, and everything else that can go wrong
 
@@ -45,32 +48,8 @@ sqlite3 ~/Library/Messages/chat.db
 
 The application by default will serve the last 365 days of messages _that are known to your computer's iMessage application_. If you want older messages, you'll need to edit the source code (it's not hard!). If you can't see newer messages, then probably you _also_ cannot see them in your iMessage application. If you can't see messages in the webapp that _do_ exist in iMessage, **file an issue on github**!
 
-## What works
+#### My address book information isn't complete!
 
-- Sending messages to a single phone number, over iMessage or SMS.
-- Receiving messages from all chats.
+I know. Right now the best I've got is an applescript that maps names to phone numbers. It takes too long to run and I have no way of verifying that it is complete. In real life, contact entity resolution is a very complicated thing. Sorry.
 
-### Todo
-
-In descending order of how much I care:
-
-- [x] docs
-- [x] unit testing for the python infra
-- [ ] unit testing for the web infra (is selenium really the only option?)
-- [ ] better grouping of chat IDs to human-readable identifiers, via contacts lookups.
-- [ ] better styling generally, as of right now this is at 0% styling.
-- [ ] more context on messages (delivered vs not, me vs not, read vs not, etc)
-- [ ] display error messages to users (mostly after sending messages but should be general)
-- [ ] Photo, video, audio attachments
-- [ ] new message notifications.
-- [ ] testing for sending messages to non-phone numbers (emails, etc)
-- [ ] support for group chats (only at the bottom bc i do not think it is possible with applescript)
-- [ ] option for password security
-- [ ] save user chat selection across sessions or something.
-- [x] Set up production wsgi server that is compatible with socketio
-- [ ] mark messages as read when they are read
-
-
-## Gotchas to document
-
-- How to set up clamshell/headless mode
+Also, the way I have set up contact resolution is NOT GOOD, so there are fixable reasons this might not be a good experience. PR's welcome y'all.

@@ -3,7 +3,7 @@ import itertools
 import sqlite3
 import typing
 
-from . import config
+from . import apple, config
 
 
 class InvalidServiceError(Exception):
@@ -34,21 +34,6 @@ def query(sql: str) -> typing.List[typing.Dict[str, typing.Any]]:
     return result
 
 
-def get_account_for_chat(chat_id: str) -> str:
-    """Run account_for_chat.sql to return the latest account id for a chat."""
-    sql = (
-        (config.WHEREAMI / "sql/account_for_chat.sql")
-        .read_text()
-        .format(chat_id=chat_id)
-    )
-    data = query(sql)
-
-    try:
-        return data[0]["account_id"]
-    except IndexError:
-        raise InvalidServiceError(f"Unknown service for chat: {chat_id}")
-
-
 def get_flat_messages(where: str = None) -> typing.List[dict]:
     """Run the messages_flat.sql file to return all messages.
 
@@ -59,20 +44,52 @@ def get_flat_messages(where: str = None) -> typing.List[dict]:
     if where is not None:
         sql += "\nwhere " + where
 
-    return query(sql)
+    messages = query(sql)
+
+    if not messages:
+        return messages
+
+    # to later enrich sender names
+    phone_number_map = {
+        apple.sanitize_phone(contact["phone"]): contact["name"]
+        for contact in apple.parse_contacts_tsv()
+    }
+
+    # clean stuff outside the SQL
+    for message in messages:
+
+        # the chat ID is going to be a comma delimited list of distinct senders.
+        # clean it + make a new ID.
+        numbers = sorted(
+            [apple.sanitize_phone(v) for v in message["chat_id"].split(",")]
+        )
+        message["chat_id"] = ",".join(numbers)
+
+        # sanitize/enrich the sender id if defined
+        if message["sender_id"]:
+            message["sender_id"] = apple.sanitize_phone(message["sender_id"])
+            message["sender_name"] = phone_number_map.get(message["sender_id"])
+
+        # cast sql int to boolean
+        message["is_from_me"] = message["is_from_me"] == 1
+
+    return messages
 
 
 def group_flat_messages(
-    messages_flat: typing.List[dict], by: str = "chat_id"
+    messages_flat: typing.List[dict], byfunc: callable = None
 ) -> typing.Dict[str, list]:
     """Group messages (as returned by get_flat) by a key.
 
     This is a helper to provide data in a structure expected around the app.
     """
+
+    def _byfunc(x):
+        return x["chat_id"]
+
+    byfunc = byfunc if byfunc is not None else _byfunc
+
     grouped = dict()
-    for key, group in itertools.groupby(
-        sorted(messages_flat, key=lambda x: x[by]),
-        lambda x: x[by].strip(),
-    ):
+    for key, group in itertools.groupby(sorted(messages_flat, key=byfunc), byfunc):
         grouped[key] = list(group)
     return grouped

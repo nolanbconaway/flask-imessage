@@ -28,23 +28,42 @@
 </head>
 
 <body>
-    <div id=content>
-        <div class="column" id="left">
-            <div id=chatList>
+    <div id=content class="container-fluid">
+        <div class="row row-height">
+
+            <div class="col-3 align-self-start left">
+                <div id=chatList>
+                </div>
             </div>
-        </div>
-        <div class="column" id="right">
-            <div id=messageList>
-            </div>
-            <div id=messageInput>
+
+            <div class="col-9 align-self-end right" id=right>
+                <div id=messageList></div>
+
                 <form action="javascript:submitMessage()">
-                    <textarea id="userMessage"></textarea>
-                    <button id="submitMessage" type="submit">SEND</button>
+                    <div id=messageInput class='form-row'>
+                        <div class="col-lg-11">
+                            <textarea class="form-control" id="userMessage" rows=3 oninput="userInputPoll()" disabled>
+                            </textarea>
+                        </div>
+                        <div class="col-lg-1">
+                            <button class="btn btn-sm btn-secondary" id="submitMessage" type="submit" disabled>
+                                >
+                            </button>
+                        </div>
+
+                    </div>
                 </form>
             </div>
+
         </div>
     </div>
 </body>
+
+<script>
+    function playNotificationSound(url) {
+        new Audio('{{url_for("static", filename="notify.mp3")}}').play()
+    }
+</script>
 
 {% block scripts %} {% endblock %}
 

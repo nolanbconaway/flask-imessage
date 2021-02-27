@@ -1,25 +1,44 @@
 """Test the DB module."""
 import pytest
-from flask_imessage import db
+from flask_imessage import config, db
+
+# mocking parse contacts tsv for this. id, name, phone
+FAKE_TSV = """
+fakeida\tHuman Readable Name\ta
+fakeidb\tHuman Readable Name\tb
+"""
 
 
-def test_get_account_for_chat(monkeypatch):
-    """Test the utility to query the last account per chat."""
-    monkeypatch.setattr(db, "query", lambda x: [dict(account_id=1)])
-    assert db.get_account_for_chat("FAKE") == 1
+@pytest.fixture
+def contacts_tsv(monkeypatch, tmp_path):
+    """Make a fake TSV file for testing."""
+    tmpfile = tmp_path / "contacts.tsv"
+    monkeypatch.setattr(config, "CACHED_CONTACTS_PATH", tmpfile)
+    tmpfile.write_text(FAKE_TSV)
+    yield tmpfile
 
-    monkeypatch.setattr(db, "query", lambda x: [])
-    with pytest.raises(db.InvalidServiceError):
-        db.get_account_for_chat("FAKE")
+
+def test_get_flat_messages(monkeypatch, contacts_tsv):
+    flat_messages = [
+        dict(is_from_me=0, chat_id="a", sender_id="a"),
+        dict(is_from_me=0, chat_id="b,a", sender_id="a"),
+        dict(is_from_me=0, chat_id="b,a", sender_id="b"),
+        dict(is_from_me=0, chat_id="b", sender_id="b"),
+    ]
+    monkeypatch.setattr(db, "query", lambda x: flat_messages)
+    result = db.get_flat_messages()
+
+    assert len(result) == 4
+    assert all([d["sender_name"] == "Human Readable Name" for d in result])
 
 
-def test_group_flat_messages(monkeypatch):
+def test_group_flat_messages():
     """Test the core chat grabber."""
     flat_messages = [
-        dict(chat_id="a", date_unix=1),
-        dict(chat_id="b", date_unix=2),
-        dict(chat_id="a", date_unix=3),
-        dict(chat_id="b", date_unix=4),
+        dict(is_from_me=0, chat_id="a", date_unix=1),
+        dict(is_from_me=0, chat_id="b", date_unix=2),
+        dict(is_from_me=0, chat_id="a", date_unix=3),
+        dict(is_from_me=0, chat_id="b", date_unix=4),
     ]
 
     grouped = db.group_flat_messages(flat_messages)

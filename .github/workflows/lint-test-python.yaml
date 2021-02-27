@@ -21,7 +21,7 @@ jobs:
       - name: Lint Python with Black
         run: black . --check --verbose
 
-      - name: Lint SQL with Black
+      - name: Lint SQL with SQLFluff
         run: sqlfluff lint src/flask_imessage/sql
 
       - name: Run unit tests with Pytest
