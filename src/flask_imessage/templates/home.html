@@ -13,7 +13,6 @@
     // merge new data into chats, render the sidebar
     socket.on('update_messages', function (newChats) {
         if (Object.keys(newChats).length == 0) return
-        console.log(`Received ${Object.keys(newChats).length} new message(s)!`)
         mergeChats(newChats)
         renderChats()
 
@@ -28,6 +27,8 @@
         socket.emit('send_message', { message, phone, account })
         document.getElementById("userMessage").value = ''
 
+        // poll for new input
+        userInputPoll()
     }
 
     // handle errors

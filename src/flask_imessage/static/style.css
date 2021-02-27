@@ -31,17 +31,12 @@ Resource #messageInput {
     position: absolute;
     right: 100;
     bottom: 0;
-    display: inline-block;
-}
-
-#userMessage {
-    box-sizing: border-box;
     width: 100%;
-    display: inline-block;
 }
 
 #submitMessage {
-    display: inline-block;
+    height: 100%;
+    width: 100%;
 }
 
 #chatList div div {

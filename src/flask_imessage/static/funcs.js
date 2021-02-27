@@ -1,16 +1,18 @@
 function userInputPoll() {
+    // Handle input to the message textarea.
+    let areaValue = document.getElementById("userMessage").value
+    let submitButton = document.getElementById('submitMessage')
+
     // disable submit if a group message or no text
-    document.getElementById('submitMessage').disabled = (
-        currentChat.isGroup || document.getElementById("userMessage").value === ""
-    )
+    if (currentChat.isGroup || areaValue.trim() === "") {
+        submitButton.disabled = true
+        submitButton.classList = 'btn btn-sm btn-secondary'
+        return
+    } else {
+        submitButton.disabled = false
+        submitButton.classList = 'btn btn-sm btn-primary'
+    }
 }
-
-function makeLi(text) {
-    let internal_li = document.createElement('li')
-    internal_li.innerHTML = text
-    return internal_li
-}
-
 
 class Message {
     constructor(data) {
@@ -148,19 +150,30 @@ class Chat {
 function mergeChats(data) {
     // Merge a set of new chat objects into the existing data. 
     // Uses global variable `chats`
-    let newChats = Object.entries(data).map(e => new Chat(...e))
+    const newChats = Object.entries(data).map(e => new Chat(...e))
+    const isFirstUpdate = Object.keys(chats).length === 0
+    let recievedMessages = []  // messages not from me that are new
 
+    // find the right spot for each new chat in the existing data.
     newChats.forEach(function (chat) {
-        let chatId = chat.chatId
+        const chatId = chat.chatId
         if (chatId in chats) {
-            chats[chatId].messages.push(...chat.messages.filter(
-                m => !chats[chatId].messageIds.has(m.messageId)
-            ))
+            let newMessages = chat.messages.filter(m => !chats[chatId].messageIds.has(m.messageId))
+            chats[chatId].messages.push(...newMessages)
+            recievedMessages.push(...newMessages.filter(m => !m.isFromMe))
         } else {
             chats[chatId] = chat
+            recievedMessages.push(...chat.messages.filter(m => !m.isFromMe))
         }
         chats[chatId].sortMessages()
     })
+
+    // notify if new messages
+    if (recievedMessages.length > 0) {
+        console.log(`Received ${Object.keys(newChats).length} message(s)!`)
+        if (!isFirstUpdate) playNotificationSound()
+    }
+
     return chats
 }
 
