@@ -114,22 +114,19 @@ class Chat {
         // Render this chat's messages in the main area
         let right = document.getElementById('right')
         let messageList = document.getElementById('messageList')
-        let messageInput = document.getElementById('messageInput')
 
         messageList.innerHTML = ''
-        messageInput.innerHTML = ''
 
         this.sortMessages().forEach(function (message) {
             messageList.appendChild(message.render())
         })
 
-        if (!this.isGroup) {
-            messageInput.innerHTML = `
-            <form action="javascript:submitMessage()">
-                <textarea id="userMessage"></textarea>
-                <button id="submitMessage" type="submit">SEND</button>
-            </form>
-            `
+        if (currentChat !== null || currentChat.chatId != this.chatId) {
+            document.getElementById('submitMessage').disabled = this.isGroup
+            document.getElementById("userMessage").disabled = this.isGroup
+            document.getElementById("userMessage").defaultValue = (
+                this.isGroup ? "This application does not support group chats!" : ""
+            )
         }
 
         // auto scroll to bottom

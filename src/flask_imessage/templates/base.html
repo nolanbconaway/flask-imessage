@@ -37,7 +37,12 @@
             </div>
             <div class="col-9 align-self-end right" id=right>
                 <div id=messageList></div>
-                <div id=messageInput></div>
+                <div id=messageInput>
+                    <form action="javascript:submitMessage()">
+                        <textarea id="userMessage"></textarea>
+                        <button id="submitMessage" type="submit">SEND</button>
+                    </form>
+                </div>
             </div>
 
         </div>
