@@ -71,14 +71,13 @@ def send_message(data):
     Responds via the `imessage_success` socket event if success, or `application_error`
     if failed.
     """
-    print(data)
     try:
         apple.send_message(data["phone"], data["message"], data["account"])
         time.sleep(5)
         socketio.emit("imessage_success", datetime.datetime.utcnow().timestamp())
 
     # if an expected error, send the user some info and exit
-    except (apple.InvalidPhoneError, db.InvalidServiceError) as e:
+    except apple.InvalidPhoneError as e:
         socketio.emit("application_error", str(e))
 
     except CalledProcessError as e:
