@@ -14,33 +14,25 @@ This repo contains a flask webapp that allows users to send + receive iMessages 
 ## User guide
 
 
-Before you begin, know that `flask_imessage` requires _a lot_ of permissions. This application is doing a lot of stuff that Apple (rightfully) wants to prevent applications from doing, such as:
+Before you begin, know that `flask_imessage` requires _a lot_ of permissions. This application is doing a lot of stuff that Apple (rightfully) wants to prevent applications from doing, such as reading/sending your messages and controlling your computer via applescripts.
 
-- [Accessing](src/flask_imessage/sql/messages_flat.sql) an internal SQLite database (`~/Library/Messages/chat.db`) that contains records of historical messages.
-- Sending iMessages via [applescript](src/flask_imessage/osascript/send_message.applescript).
-- Listing contacts data via an [applescript](src/flask_imessage/osascript/get_contacts.applescript).
-- Clicking preferences menu items via [applescript](src/flask_imessage/osascript/imessage_sync.applescript).
+You'll need to set up permissions for each of these cases in your Security + privacy settings. The following shell commands can help verify that everything is correctly permissioned:
 
-It's a lot of stuff that Apple is right to guard against. You'll need to set up permissions for each of these cases in your Security + privacy settings. The following shell commands can help verify that everything is correctly permissioned:
-
-Accessing the SQLite data (see [this SO post](https://apple.stackexchange.com/questions/208478) if granting full disk access doesn't do the trick):
+- Accessing the SQLite data:
 
 ```sh
 $ sqlite3 ~/Library/Messages/chat.db
 ```
 
-Checking contacts access via applescript (let it run a minute or two, a TSV should print to the console):
+A SQLite command prompt should open up in your terminal. You'll definitely get a permissions error the first try; see [this SO post](https://apple.stackexchange.com/questions/208478) if granting full disk access doesn't do the trick.
+
+- Checking contacts access via applescript:
 
 ```sh
 $ osascript src/flask_imessage/osascript/get_contacts.applescript
 ```
 
-Checking applescripts can execute system events (button clicks):
-
-```sh
-$ osascript src/flask_imessage/osascript/imessage_sync.applescript
-```
-
+This'll take a minute or two, but if everything's good to go then a TSV file should print to the console.
 
 ### Setup
 
@@ -71,4 +63,4 @@ Also, the way I have set up contact resolution is NOT GOOD, so there are fixable
 
 #### My messages are not syncing when the server is headless
 
-I know about this, and am testing out different solutions. LMK if you know of a good approach!
+It looks like Apple does not check for new messages on Macbooks when the lid is closed. I am working on some solutions but for now it looks like the best option is to keep the lid open. LMK if you know of a fix!
