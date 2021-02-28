@@ -191,7 +191,10 @@ function renderChats() {
     sortedChats.forEach(function (chat) {
         let row = document.createElement('div')
         row.appendChild(chat.sidebarElement())
-        row.onclick = function () { chat.renderMessages() }
+        row.onclick = function () {
+            chat.renderMessages()
+            setCookie('lastChatViewed', chat.chatId)
+        }
         if (currentChat !== null && currentChat.chatId === chat.chatId) {
             row.id = 'currentSideBarChat'
         }
