@@ -218,12 +218,15 @@ function renderChats() {
     sortedChats.forEach(function (chat) {
         let row = document.createElement('div')
         row.appendChild(chat.sidebarElement())
-        row.onclick = function () {
-            chat.renderMessages()
-            setCookie('lastChatViewed', chat.chatId)
-        }
+
+        // highlight div if current chat, else set onclick.
         if (currentChat !== null && currentChat.chatId === chat.chatId) {
             row.id = 'currentSideBarChat'
+        } else {
+            row.onclick = function () {
+                chat.renderMessages()
+                setCookie('lastChatViewed', chat.chatId)
+            }
         }
         div.appendChild(row)
     })
