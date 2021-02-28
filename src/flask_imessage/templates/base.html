@@ -41,8 +41,8 @@
                 <form action="javascript:submitMessage()">
                     <div id=messageInput class='form-row'>
                         <div class="col-lg-11">
-                            <textarea class="form-control" id="userMessage" rows=3 oninput="userInputPoll()" disabled>
-                            </textarea>
+                            <textarea class="form-control" id="userMessage" rows=3 onkeypress="userInputPoll(event)"
+                                disabled></textarea>
                         </div>
                         <div class="col-lg-1">
                             <button class="btn btn-sm btn-secondary" id="submitMessage" type="submit" disabled>
