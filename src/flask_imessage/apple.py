@@ -65,11 +65,3 @@ def get_contacts():
     return subprocess.run(
         ["osascript", applescript], capture_output=True, check=True
     ).stdout.decode()
-
-
-def sync_imessage() -> None:
-    """Run imessage_sync to press the Sync Now button of Messages.app."""
-    applescript = config.WHEREAMI / "osascript/imessage_sync.applescript"
-    return subprocess.run(
-        ["osascript", applescript], capture_output=True, check=True
-    ).stdout.decode()

@@ -32,6 +32,12 @@ def test_get_flat_messages(monkeypatch, contacts_tsv):
     assert all([d["sender_name"] == "Human Readable Name" for d in result])
 
 
+def test_get_flat_messages_no_results(monkeypatch):
+    monkeypatch.setattr(db, "query", lambda x: [])
+    result = db.get_flat_messages()
+    assert not result
+
+
 def test_group_flat_messages():
     """Test the core chat grabber."""
     flat_messages = [

@@ -1,4 +1,4 @@
-function userInputPoll() {
+function userInputPoll(event) {
     // Handle input to the message textarea.
     let areaValue = document.getElementById("userMessage").value
     let submitButton = document.getElementById('submitMessage')
@@ -8,9 +8,20 @@ function userInputPoll() {
         submitButton.disabled = true
         submitButton.classList = 'btn btn-sm btn-secondary'
         return
-    } else {
+    }
+
+    // otherwise, undisable submit
+    if (submitButton.disabled) {
         submitButton.disabled = false
         submitButton.classList = 'btn btn-sm btn-primary'
+    }
+
+    // nothing left to do if this function was manually called (i.e., no event passed)
+    if (event === undefined) return
+
+    // submit if enter key event without modifier
+    if (event.which === 13 && !(event.ctrlKey || event.shiftKey)) {
+        submitButton.click()
     }
 }
 
@@ -129,12 +140,28 @@ class Chat {
 
         })
 
-        // disable message if a group chat (not supported rn)
-        if (currentChat === null || currentChat.chatId != this.chatId) {
-            document.getElementById("userMessage").disabled = this.isGroup
-            document.getElementById("userMessage").defaultValue = (
-                this.isGroup ? "This application does not support group chats!" : ""
-            )
+        // enable or disable the user input
+        let textArea = document.getElementById('userMessage')
+        let submitButton = document.getElementById('submitMessage')
+
+        // handle text area contents
+        // if a group chat: disable
+        //  -- else if was previously disabled: enable and clear
+        //  -- else if chat focus has changed: clear
+        if (this.isGroup) {
+            textArea.disabled = true
+            textArea.value = "This application does not support group chats!"
+            submitButton.disabled = true
+            submitButton.classList = 'btn btn-sm btn-secondary'
+        } else if (textArea.disabled) {
+            textArea.disabled = false
+            submitButton.disabled = true
+            submitButton.classList = 'btn btn-sm btn-secondary'
+            textArea.value = ""
+        } else if (currentChat === null || this.chatId != currentChat.chatId) {
+            textArea.value = ""
+            submitButton.disabled = true
+            submitButton.classList = 'btn btn-sm btn-secondary'
         }
 
         // auto scroll to bottom
@@ -191,9 +218,15 @@ function renderChats() {
     sortedChats.forEach(function (chat) {
         let row = document.createElement('div')
         row.appendChild(chat.sidebarElement())
-        row.onclick = function () { chat.renderMessages() }
+
+        // highlight div if current chat, else set onclick.
         if (currentChat !== null && currentChat.chatId === chat.chatId) {
             row.id = 'currentSideBarChat'
+        } else {
+            row.onclick = function () {
+                chat.renderMessages()
+                setCookie('lastChatViewed', chat.chatId)
+            }
         }
         div.appendChild(row)
     })

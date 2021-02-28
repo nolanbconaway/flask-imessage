@@ -2,8 +2,13 @@
 
 {% block scripts %}
 <script>
-    var chats = new Object(); // global and updated via socket.
-    var currentChat = null;
+    let chats = new Object(); // global and updated via socket.
+    let currentChat = null;
+
+    // grab data from cookies
+    let lastChatIDCookie = null;
+    getCookie('lastChatViewed', x => (lastChatIDCookie = x))
+
 
     var socket = io.connect();
     socket.on('connect', function () {
@@ -16,7 +21,13 @@
         mergeChats(newChats)
         renderChats()
 
-        if (currentChat !== null) currentChat.renderMessages()
+        // set current chat via cookie if not otherwise set, render messages
+        if (currentChat === null && lastChatIDCookie !== null) {
+            currentChat = chats[lastChatIDCookie]
+            currentChat.renderMessages()
+        } else if (currentChat !== null) {
+            currentChat.renderMessages()
+        }
     })
 
     function submitMessage() {

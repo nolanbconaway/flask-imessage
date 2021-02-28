@@ -6,12 +6,6 @@ import typing
 from . import apple, config
 
 
-class InvalidServiceError(Exception):
-    """Raised when no account ID can be located for a chat."""
-
-    pass
-
-
 def query(sql: str) -> typing.List[typing.Dict[str, typing.Any]]:
     """Run a SQL query in the chat DB.
 
