@@ -34,7 +34,7 @@ def app_and_socket_client(monkeypatch):
 
 def test_socketio_connect(app_and_socket_client):
     """Test that the user gets messages on connect."""
-    client, socketio = app_and_socket_client
+    _, socketio = app_and_socket_client
 
     # user ought to have recieved some messages
     connect_response = socketio.get_received()
@@ -42,3 +42,19 @@ def test_socketio_connect(app_and_socket_client):
 
     connect_response = connect_response[0]
     assert connect_response["name"] == "update_messages"
+
+
+def test_cookie_setter_and_getter(app_and_socket_client):
+    client, _ = app_and_socket_client
+
+    # set the cookie, client returns data as-is
+    data = client.post("/set-session", data=dict(key="something", value="123")).json
+    assert data["_success"]
+    assert data["data"]["key"] == "something"
+    assert data["data"]["value"] == "123"
+
+    # get the cookie; response should be the same
+    data = client.post("/get-session", data=dict(key="something")).json
+    assert data["_success"]
+    assert data["data"]["key"] == "something"
+    assert data["data"]["value"] == "123"
